@@ -109,6 +109,7 @@ class Window(QWidget):
 
         self.tabela_consulta = QTableView(self.frm_pesquisar)
         self.tabela_consulta.setGeometry(20, 70, largura_view, altura_view)
+        self.tabela_consulta.verticalHeader().setVisible(False)
 
         self.btn_pesquisar = QPushButton('Consultar', self.frm_pesquisar)
         self.btn_pesquisar.setGeometry(700, 20, 80, 22)
@@ -141,6 +142,7 @@ class Window(QWidget):
 
         self.tabela = QTableView(self.frm_relatorio)
         self.tabela.setGeometry(20, 70, largura_view, altura_view)
+        self.tabela.verticalHeader().setVisible(False)
 
         self.titulos = self.tabela.horizontalHeader()
         self.titulos.setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -182,6 +184,7 @@ class Window(QWidget):
 
         self.tabela_fcp = QTableView(self.frm_relatorio_fcp)
         self.tabela_fcp.setGeometry(20, 70, largura_view, altura_view)
+        self.tabela_fcp.verticalHeader().setVisible(False)
 
         self.titulos = self.tabela_fcp.horizontalHeader()
         # self.titulos.setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -224,6 +227,7 @@ class Window(QWidget):
 
         self.tabela_email = QTableView(self.frm_email)
         self.tabela_email.setGeometry(20, 70, largura_view, altura_view)
+        self.tabela_email.verticalHeader().setVisible(False)
 
         self.titulos = self.tabela_email.horizontalHeader()
         self.titulos.setSectionResizeMode(QHeaderView.ResizeToContents)
