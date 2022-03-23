@@ -19,7 +19,10 @@ class Window(QWidget):
 
         self.setWindowTitle("Assistente de Consultas - QUESTOR")
         # x,y,w,h -> Afastado da esquerda, afastado do topo, largura, algura
-        self.setGeometry(150, 100, 1200, 700)
+        global altura, largura
+        altura = 700
+        largura = 1200
+        self.setGeometry(150, 100, largura, altura)
         self.setAutoFillBackground(True)
         self.setStyleSheet('background-color: #aecfca;')
 
@@ -31,6 +34,9 @@ class Window(QWidget):
         self.setWindowIcon(appIcon)
 
     def def_formulario(self):
+        altura_view = altura - 90
+        largura_view = largura - 210
+
         font_btn = QFont("fonts/Exo2_Bold.ttf", 14)
         self.btn_cadastrar = QPushButton('Cadastrar', self)
         self.btn_cadastrar.setFont(font_btn)
@@ -102,7 +108,7 @@ class Window(QWidget):
         self.txt_cod_pesquisa.setGeometry(80, 20, 600, 22)
 
         self.tabela_consulta = QTableView(self.frm_pesquisar)
-        self.tabela_consulta.setGeometry(20, 70, 1300, 700)
+        self.tabela_consulta.setGeometry(20, 70, largura_view, altura_view)
 
         self.btn_pesquisar = QPushButton('Consultar', self.frm_pesquisar)
         self.btn_pesquisar.setGeometry(700, 20, 80, 22)
@@ -134,7 +140,7 @@ class Window(QWidget):
         self.btn_limpar.clicked.connect(self.limpa_relatorio)
 
         self.tabela = QTableView(self.frm_relatorio)
-        self.tabela.setGeometry(20, 70, 1300, 700)
+        self.tabela.setGeometry(20, 70, largura_view, altura_view)
 
         self.titulos = self.tabela.horizontalHeader()
         self.titulos.setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -175,7 +181,7 @@ class Window(QWidget):
         self.btn_limpar.clicked.connect(self.limpa_fecoep)
 
         self.tabela_fcp = QTableView(self.frm_relatorio_fcp)
-        self.tabela_fcp.setGeometry(20, 70, 1300, 700)
+        self.tabela_fcp.setGeometry(20, 70, largura_view, altura_view)
 
         self.titulos = self.tabela_fcp.horizontalHeader()
         # self.titulos.setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -217,7 +223,7 @@ class Window(QWidget):
         self.txt_resultado_email.setGeometry(20,44,600,22)   
 
         self.tabela_email = QTableView(self.frm_email)
-        self.tabela_email.setGeometry(20, 70, 1300, 700)
+        self.tabela_email.setGeometry(20, 70, largura_view, altura_view)
 
         self.titulos = self.tabela_email.horizontalHeader()
         self.titulos.setSectionResizeMode(QHeaderView.ResizeToContents)
