@@ -173,7 +173,7 @@ class Window(QWidget):
         self.combo_box = QComboBox(self.frm_relatorio_fcp)
         self.combo_box.setGeometry(80, 20, 200, 22)
         self.combo_box.setStyleSheet('background-color: white')
-        self.lista_combo_box = ['Produtos sem Fecoep', 'Faturamento em CPF']
+        self.lista_combo_box = ['Produtos sem Fecoep', 'Faturamento em CPF','Retiradas Pendentes']
         self.combo_box.addItems(self.lista_combo_box)
 
         self.btn_pesquisar = QPushButton('Pesquisar', self.frm_relatorio_fcp)
@@ -260,6 +260,8 @@ class Window(QWidget):
             self.consulta_fecoep()
         elif valor_combo_box == 'Faturamento em CPF':
             self.faturamento_cpf()
+        elif valor_combo_box == 'Retiradas Pendentes':
+            self.consulta_retiradas()
 
     def consulta_produtos(self):
         global txt_cod_consulta
@@ -275,6 +277,11 @@ class Window(QWidget):
 
     def faturamento_cpf(self):
         dados = b.faturamento_cpf()
+        self.modelo = CustomTableModel3(dados)
+        self.tabela_fcp.setModel(self.modelo)
+
+    def consulta_retiradas(self):
+        dados = b.consulta_retiradas()
         self.modelo = CustomTableModel3(dados)
         self.tabela_fcp.setModel(self.modelo)
 
@@ -367,4 +374,4 @@ def executa():
     janela.show()
     myApp.exec_()
 
-executa()
+#executa()

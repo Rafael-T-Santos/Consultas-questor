@@ -140,4 +140,52 @@ def consulta_faturadas_email(data):
         dados = (resultados, nome_colunas)
         return dados
 
-    
+def consulta_retiradas():
+
+        consulta = """SELECT T3.NR_DOCUMENTO, T1.CD_ITEM AS ITEM, 
+T1.CD_MATERIAL AS COD, 
+T1.DS_MATERIAL AS PRODUTO, 
+T1.CD_CME AS COD, 
+T1.DS_CME AS NATUREZA, 
+T1.NR_QUANTIDADE AS QUANTIDADE,
+(CASE WHEN (T1.NR_QUANTIDADE - (SELECT SUM(NR_QUANTIDADE) 
+								FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+								WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+								AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+								GROUP BY T2.CD_MATERIAL)) IS NULL THEN 0 
+								ELSE (T1.NR_QUANTIDADE - (SELECT SUM(NR_QUANTIDADE) 
+														 FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+														 WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+														 AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+														 GROUP BY T2.CD_MATERIAL)) END) AS QUANT_IMPORTAR,  
+(CASE WHEN (SELECT SUM(NR_QUANTIDADE) 
+			FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+			WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+			AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+			GROUP BY T2.CD_MATERIAL) IS NULL THEN 0 
+			ELSE (SELECT SUM(NR_QUANTIDADE) 
+				 FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+				 WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+				 AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+				 GROUP BY T2.CD_MATERIAL) END) AS QUANT_FATURADA
+FROM DBO.TBL_NOTAS_FATURAMENTO_ITENS T1
+INNER JOIN TBL_NOTAS_FATURAMENTO T3
+ON T1.CD_LANCAMENTO = T3.CD_LANCAMENTO
+WHERE (X_SIMPLES_REMESSA_ENTREGA_FUTURA = 1)
+AND T1.NR_QUANTIDADE <> (SELECT SUM(NR_QUANTIDADE) 
+			FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+			WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+			AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+			GROUP BY T2.CD_MATERIAL)
+			ORDER BY NR_DOCUMENTO DESC;"""
+
+        # armazena as informações sobre a consulta, numero de colunas, nopmes, tipos de dados
+        cursor.execute(consulta)
+        # armazena os dados
+        resultados = cursor.fetchall()
+        # pega o tamanho da descrição do cursor, ou seja o numero de colunas
+        num_colunas = len(cursor.description)
+        nome_colunas = [i[0] for i in cursor.description]
+
+        dados = (resultados, nome_colunas)
+        return dados
