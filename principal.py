@@ -5,6 +5,7 @@ from PySide2.QtWidgets import (QApplication, QWidget, QLabel,
 from PySide2.QtGui import QIcon, QPixmap, QFont
 from PySide2.QtCore import QDate
 from datetime import date
+from tkinter import Tk
 from Models.modelo import CustomTableModel
 from Models.modelo2 import CustomTableModel2
 from Models.modelo3 import CustomTableModel3
@@ -18,11 +19,12 @@ class Window(QWidget):
         super().__init__()
 
         self.setWindowTitle("Assistente de Consultas - QUESTOR")
-        # x,y,w,h -> Afastado da esquerda, afastado do topo, largura, algura
-        global altura, largura
-        altura = 700
-        largura = 1200
-        self.setGeometry(150, 100, largura, altura)
+        # x,y,w,h -> Afastado da esquerda, afastado do topo, largura, altura
+        global altura_monitor, largura_monitor
+        altura_monitor = Tk().winfo_screenheight()
+        largura_monitor = Tk().winfo_screenwidth()
+
+        self.setGeometry(largura_monitor*0.1, altura_monitor*0.1, largura_monitor*0.8, altura_monitor*0.8)
         self.setAutoFillBackground(True)
         self.setStyleSheet('background-color: #aecfca;')
 
@@ -34,8 +36,8 @@ class Window(QWidget):
         self.setWindowIcon(appIcon)
 
     def def_formulario(self):
-        altura_view = altura - 90
-        largura_view = largura - 210
+        altura_view = altura_monitor*0.8 - 90
+        largura_view = largura_monitor*0.8 - 210
 
         font_btn = QFont("fonts/Exo2_Bold.ttf", 14)
         self.btn_cadastrar = QPushButton('Cadastrar', self)
@@ -374,4 +376,4 @@ def executa():
     janela.show()
     myApp.exec_()
 
-#executa()
+executa()
