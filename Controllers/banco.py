@@ -35,7 +35,7 @@ def consulta_produtos(produtos):
         WHERE T1.CD_MATERIAL IN("""+produtos+""")
         GROUP BY T1.CD_MATERIAL, T3.DS_MATERIAL;"""
 
-    # armazena as informações sobre a consulta, numero de colunas, nopmes, tipos de dados
+    # armazena as informações sobre a consulta, numero de colunas, nomes, tipos de dados
     cursor.execute(consulta)
     # armazena os dados
     resultados = cursor.fetchall()
@@ -68,17 +68,11 @@ def consulta_fecoep():
                         INNER JOIN TBL_GRADE_TRIBUTARIA T3 ON T2.CD_GRADE_TRIBUTARIA = T3.CD_GRADE
                         WHERE T2.CD_GRADE_TRIBUTARIA NOT IN (33,37,38,3)
 						AND T2.X_CALCULA_FCP_ST = 0"""
-        # UNION
-        # SELECT T2.CD_MATERIAL AS COD, T2.DS_MATERIAL AS DESCRICAO, T1.CD_UF AS UF ,T1.PR_FCP_MATERIAL AS FECOEP, T2.CD_GRADE_TRIBUTARIA AS CD_GRADE, T3.DS_GRADE AS GRADE, T2.CD_FILIAL_MATERIAL AS FILIAL FROM TBL_MATERIAIS_ALIQUOTA_UF_DIFAL_FCP T1
-        # RIGHT JOIN TBL_MATERIAIS T2 ON T1.CD_MATERIAL = T2.CD_MATERIAL
-        # INNER JOIN TBL_GRADE_TRIBUTARIA T3 ON T2.CD_GRADE_TRIBUTARIA = T3.CD_GRADE
-        # WHERE T2.CD_MATERIAL = 6989"""
-
-        # armazena as informações sobre a consulta, numero de colunas, nopmes, tipos de dados
+        
         cursor.execute(consulta)
-        # armazena os dados
+
         resultados = cursor.fetchall()
-        # pega o tamanho da descrição do cursor, ou seja o numero de colunas
+
         num_colunas = len(cursor.description)
         nome_colunas = [i[0] for i in cursor.description]
 
@@ -95,11 +89,10 @@ def faturamento_cpf():
 		AND (T1.DT_EMISSAO > CONVERT(datetime, '2022-01-01T00:00:00.000'))
 		ORDER BY T1.DT_EMISSAO DESC;"""
 
-        # armazena as informações sobre a consulta, numero de colunas, nopmes, tipos de dados
         cursor.execute(consulta)
-        # armazena os dados
+
         resultados = cursor.fetchall()
-        # pega o tamanho da descrição do cursor, ou seja o numero de colunas
+
         num_colunas = len(cursor.description)
         nome_colunas = [i[0] for i in cursor.description]
 
@@ -108,11 +101,10 @@ def faturamento_cpf():
 
 def consulta_personalizada(sql_personalizado):
       
-        # armazena as informações sobre a consulta, numero de colunas, nopmes, tipos de dados
         cursor.execute(sql_personalizado)
-        # armazena os dados
+
         resultados = cursor.fetchall()
-        # pega o tamanho da descrição do cursor, ou seja o numero de colunas
+
         num_colunas = len(cursor.description)
         nome_colunas = [i[0] for i in cursor.description]
 
@@ -129,11 +121,11 @@ def consulta_faturadas_email(data):
         AND T2.DS_EMAIL <> ''
         ORDER BY T2.CD_ENTIDADE;"""
 
-        # armazena as informações sobre a consulta, numero de colunas, nopmes, tipos de dados
+
         cursor.execute(consulta)
-        # armazena os dados
+
         resultados = cursor.fetchall()
-        # pega o tamanho da descrição do cursor, ou seja o numero de colunas
+
         num_colunas = len(cursor.description)
         nome_colunas = [i[0] for i in cursor.description]
 
@@ -143,47 +135,47 @@ def consulta_faturadas_email(data):
 def consulta_retiradas():
 
         consulta = """SELECT T3.NR_DOCUMENTO, T1.CD_ITEM AS ITEM, 
-T1.CD_MATERIAL AS COD, 
-T1.DS_MATERIAL AS PRODUTO, 
-T1.CD_CME AS COD, 
-T1.DS_CME AS NATUREZA, 
-T1.NR_QUANTIDADE AS QUANTIDADE,
-(CASE WHEN (T1.NR_QUANTIDADE - (SELECT SUM(NR_QUANTIDADE) 
-								FROM SEL_NOTAS_EMITIDAS_ITENS T2 
-								WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
-								AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
-								GROUP BY T2.CD_MATERIAL)) IS NULL THEN 0 
-								ELSE (T1.NR_QUANTIDADE - (SELECT SUM(NR_QUANTIDADE) 
-														 FROM SEL_NOTAS_EMITIDAS_ITENS T2 
-														 WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
-														 AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
-														 GROUP BY T2.CD_MATERIAL)) END) AS QUANT_IMPORTAR,  
-(CASE WHEN (SELECT SUM(NR_QUANTIDADE) 
-			FROM SEL_NOTAS_EMITIDAS_ITENS T2 
-			WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
-			AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
-			GROUP BY T2.CD_MATERIAL) IS NULL THEN 0 
-			ELSE (SELECT SUM(NR_QUANTIDADE) 
-				 FROM SEL_NOTAS_EMITIDAS_ITENS T2 
-				 WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
-				 AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
-				 GROUP BY T2.CD_MATERIAL) END) AS QUANT_FATURADA
-FROM DBO.TBL_NOTAS_FATURAMENTO_ITENS T1
-INNER JOIN TBL_NOTAS_FATURAMENTO T3
-ON T1.CD_LANCAMENTO = T3.CD_LANCAMENTO
-WHERE (X_SIMPLES_REMESSA_ENTREGA_FUTURA = 1)
-AND T1.NR_QUANTIDADE <> (SELECT SUM(NR_QUANTIDADE) 
-			FROM SEL_NOTAS_EMITIDAS_ITENS T2 
-			WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
-			AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
-			GROUP BY T2.CD_MATERIAL)
-			ORDER BY NR_DOCUMENTO DESC;"""
+                        T1.CD_MATERIAL AS COD, 
+                        T1.DS_MATERIAL AS PRODUTO, 
+                        T1.CD_CME AS COD, 
+                        T1.DS_CME AS NATUREZA, 
+                        T1.NR_QUANTIDADE AS QUANTIDADE,
+                        (CASE WHEN (T1.NR_QUANTIDADE - (SELECT SUM(NR_QUANTIDADE) 
+                                                        FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                                        WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                                        AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                                        GROUP BY T2.CD_MATERIAL)) IS NULL THEN 0 
+                                                        ELSE (T1.NR_QUANTIDADE - (SELECT SUM(NR_QUANTIDADE) 
+                                                                                FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                                                                WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                                                                AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                                                                GROUP BY T2.CD_MATERIAL)) END) AS QUANT_IMPORTAR,  
+                        (CASE WHEN (SELECT SUM(NR_QUANTIDADE) 
+                                    FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                    WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                    AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                    GROUP BY T2.CD_MATERIAL) IS NULL THEN 0 
+                                    ELSE (SELECT SUM(NR_QUANTIDADE) 
+                                        FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                        WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                        AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                        GROUP BY T2.CD_MATERIAL) END) AS QUANT_FATURADA
+                        FROM DBO.TBL_NOTAS_FATURAMENTO_ITENS T1
+                        INNER JOIN TBL_NOTAS_FATURAMENTO T3
+                        ON T1.CD_LANCAMENTO = T3.CD_LANCAMENTO
+                        WHERE (X_SIMPLES_REMESSA_ENTREGA_FUTURA = 1)
+                        AND T1.NR_QUANTIDADE <> (SELECT SUM(NR_QUANTIDADE) 
+                                    FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                    WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                    AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                    GROUP BY T2.CD_MATERIAL)
+                                    ORDER BY NR_DOCUMENTO DESC;"""
 
-        # armazena as informações sobre a consulta, numero de colunas, nopmes, tipos de dados
+
         cursor.execute(consulta)
-        # armazena os dados
+
         resultados = cursor.fetchall()
-        # pega o tamanho da descrição do cursor, ou seja o numero de colunas
+
         num_colunas = len(cursor.description)
         nome_colunas = [i[0] for i in cursor.description]
 

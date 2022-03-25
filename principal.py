@@ -19,11 +19,11 @@ class Window(QWidget):
         super().__init__()
 
         self.setWindowTitle("Assistente de Consultas - QUESTOR")
-        # x,y,w,h -> Afastado da esquerda, afastado do topo, largura, altura
         global altura_monitor, largura_monitor
         altura_monitor = Tk().winfo_screenheight()
         largura_monitor = Tk().winfo_screenwidth()
 
+        # x,y,w,h -> Afastado da esquerda, afastado do topo, largura, altura
         self.setGeometry(largura_monitor*0.1, altura_monitor*0.1, largura_monitor*0.8, altura_monitor*0.8)
         self.setAutoFillBackground(True)
         self.setStyleSheet('background-color: #aecfca;')
@@ -43,7 +43,6 @@ class Window(QWidget):
         self.btn_cadastrar = QPushButton('Cadastrar', self)
         self.btn_cadastrar.setFont(font_btn)
         self.btn_cadastrar.setGeometry(0, 0, 170, 50)
-        # self.btn_cadastrar.setStyleSheet('background-color: #aecfca;')
         self.btn_cadastrar.clicked.connect(self.frame_cadastrar)
 
         self.btn_pesquisar = QPushButton('Pesquisar', self)
@@ -67,7 +66,7 @@ class Window(QWidget):
         self.btn_relatorio_fcp.clicked.connect(self.frame_email)
 
         '''
-        FRAME DE CADASTRO ===================================================
+        FRAME DE CADASTRO ===============================================================================
         '''
         global frm_cadastrar
         self.frm_cadastrar = QFrame(self)
@@ -94,7 +93,7 @@ class Window(QWidget):
         self.btn_gravar.setGeometry(700, 650, 115, 22)
 
         '''
-        FRAME DE PESQUISA ===================================================
+        FRAME DE CONSULTA SQL ===============================================================================
         '''
         global frm_pesquisar
         self.frm_pesquisar = QFrame(self)
@@ -119,7 +118,7 @@ class Window(QWidget):
         self.btn_pesquisar.clicked.connect(self.consulta_personalizada)
 
         '''
-        FRAME DE RELATORIO ESTOQUE ===================================================
+        FRAME DE RELATORIO ESTOQUE ============================================================================
         '''
         global frm_relatorio
         self.frm_relatorio = QFrame(self)
@@ -136,7 +135,6 @@ class Window(QWidget):
 
         self.btn_pesquisar = QPushButton('Pesquisar', self.frm_relatorio)
         self.btn_pesquisar.setGeometry(300, 20, 80, 22)
-        #self.btn_pesquisar.clicked.connect(self.consulta_produtos)
         self.btn_pesquisar.clicked.connect(self.consulta_produtos)
 
         self.btn_limpar = QPushButton('Limpar', self.frm_relatorio)
@@ -152,7 +150,7 @@ class Window(QWidget):
         self.titulos.setSectionResizeMode(QHeaderView.ResizeToContents)
 
         '''
-        FRAME DE RELATORIO FECOEP =======================================================
+        FRAME DE RELATORIOS QUE NÃO PRECISAM DE VARIAVEL =========================================================================
         '''
         global frm_relatorio_fcp
         global combo_box
@@ -161,13 +159,6 @@ class Window(QWidget):
         self.frm_relatorio_fcp.setGeometry(170, 0, 1920, 1080)
         self.frm_relatorio_fcp.setStyleSheet('background-color: #cde4e0')
         self.frm_relatorio_fcp.setVisible(False)
-
-        # self.lbl_filial = QLabel('Filial', self.frm_relatorio_fcp)
-        # self.lbl_filial.setGeometry(20, 50, 55, 16)
-
-        # global txt_filial
-        # self.txt_filial = QLineEdit(self.frm_relatorio_fcp)
-        # self.txt_filial.setGeometry(80, 50, 721, 22)
 
         self.lbl_cod = QLabel('Relatório', self.frm_relatorio_fcp)
         self.lbl_cod.setGeometry(20, 20, 80, 22)
@@ -192,15 +183,11 @@ class Window(QWidget):
         self.tabela_fcp.setSelectionBehavior(QAbstractItemView.SelectRows)
 
         self.titulos = self.tabela_fcp.horizontalHeader()
-        # self.titulos.setSectionResizeMode(QHeaderView.ResizeToContents)
 
         '''
-        FRAME DE RELATORIO PARA ENVIAR EMAIL
+        FRAME DE RELATORIO PARA ENVIAR EMAIL ============================================================================
         '''
-
-
-        # Adicionar novo frame para o relatorio de e-mail que precisa de uma data para funcionar
-        
+ 
         global frm_email
         global data_faturamento
 
@@ -376,4 +363,4 @@ def executa():
     janela.show()
     myApp.exec_()
 
-executa()
+#executa()

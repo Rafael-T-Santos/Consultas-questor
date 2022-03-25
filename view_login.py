@@ -1,13 +1,8 @@
-# QApplication é a aplicação em si, e QWidgets são as coisas dentro da janela
 from telnetlib import LOGOUT
 from PySide2.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QMessageBox
 from PySide2.QtGui import QIcon, QPixmap, QFont
 import sys
 import Controllers.controle as c
-
-
-# Classe que constroi a janela
-
 
 class Window(QWidget):
     global logou, tentativas
@@ -18,7 +13,6 @@ class Window(QWidget):
         super().__init__()
 
         self.setWindowTitle("Assistente de Consultas - QUESTOR")
-        # x,y,w,h -> Afastado da esquerda, afastado do topo, largura, algura
         self.setFixedSize(800, 450)
         self.setToolTip("Janela de Login")
         self.setAutoFillBackground(True)
@@ -40,7 +34,6 @@ class Window(QWidget):
         fundo.setStyleSheet('background-color:#81CAB2;')
 
     def set_img(self):
-        # Imagem direita
         icon_img = QIcon("imgs/logo.jpg")
         lbl_img = QLabel('Olá', self)
         lbl_img.move(475, 75)
@@ -52,9 +45,8 @@ class Window(QWidget):
 
         font_title = QFont("fonts/Exo2_Bold.ttf", 14)
         font_campos = QFont("fonts/Exo2_VariableFont_wght.ttf", 11)
-        # Msg Bem Vindo
-        lbl_title = QLabel(
-            'Bem Vindo', self)
+
+        lbl_title = QLabel('Bem Vindo', self)
         lbl_title.setGeometry(100, 50, 300, 100)
         lbl_title.setFont(font_title)
 
@@ -83,7 +75,6 @@ class Window(QWidget):
         btn_entrar = QPushButton('Entrar', self)
         btn_entrar.move(100, 270)
         btn_entrar.clicked.connect(self.validar_login)
-        # quando o botão for clicado, se conecta a uma função e a executa
         btn_entrar.setFont(font_btn)
         btn_entrar.setStyleSheet('background-color:#81CAB2;')
 
@@ -118,8 +109,7 @@ class Window(QWidget):
                 msg = QMessageBox()
                 appIcon = QIcon("imgs/logo.png")
                 msg.setWindowIcon(appIcon)
-                msg.setText(
-                    'Usuário ou senha inválido!')
+                msg.setText('Usuário ou senha inválido!')
                 msg.setIcon(QMessageBox.Warning)
                 msg.setWindowTitle('Assistente de Consultas')
                 msg.exec()
