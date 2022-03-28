@@ -197,11 +197,11 @@ class Window(QWidget):
         self.frm_email.setVisible(False)
 
         self.lbl_cod = QLabel('Data de Faturamento:', self.frm_email)
-        self.lbl_cod.setGeometry(20, 20, 80, 22)
+        self.lbl_cod.setGeometry(20, 20, 110, 22)
 
         # Adicionar bloco de data e guardar na variavel global para utilizar na função
         self.data_faturamento = QDateEdit(self.frm_email)
-        self.data_faturamento.setGeometry(120, 20, 100, 22)
+        self.data_faturamento.setGeometry(140, 20, 100, 22)
         self.data_faturamento.setButtonSymbols(QAbstractSpinBox.UpDownArrows)
         self.data_faturamento.setCalendarPopup(True)
         today = date.today()
@@ -215,7 +215,7 @@ class Window(QWidget):
         self.data_faturamento.setDate(QDate(ano,mes,dia))
 
         self.txt_resultado_email = QLineEdit(self.frm_email)
-        self.txt_resultado_email.setGeometry(20,44,600,22)   
+        self.txt_resultado_email.setGeometry(20,44,largura_view,22)   
 
         self.tabela_email = QTableView(self.frm_email)
         self.tabela_email.setGeometry(20, 70, largura_view, altura_view)
@@ -232,6 +232,10 @@ class Window(QWidget):
         self.btn_copiar = QPushButton('Copiar', self.frm_email)
         self.btn_copiar.setGeometry(400, 20, 60, 22)
         self.btn_copiar.clicked.connect(self.copiar_txt_resultado_email)
+
+        self.btn_limpar = QPushButton('Limpar', self.frm_email)
+        self.btn_limpar.setGeometry(480, 20, 80, 22)
+        self.btn_limpar.clicked.connect(self.limpa_email)
         
 
         global meus_frames
@@ -351,6 +355,11 @@ class Window(QWidget):
     def limpa_relatorio(self):
         global frm_relatorio
         self.tabela.setModel(None)
+
+    def limpa_email(self):
+        global frm_email
+        self.tabela_email.setModel(None)
+        self.txt_resultado_email.setText("")
 
 
 def executa():
