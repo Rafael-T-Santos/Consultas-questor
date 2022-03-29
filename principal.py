@@ -248,6 +248,7 @@ class Window(QWidget):
         pc.copy(copia)
 
     def print_relatorio(self):
+        self.limpa_fecoep()
         valor_combo_box = self.combo_box.currentText()
         if valor_combo_box == 'Produtos sem Fecoep':
             self.consulta_fecoep()
@@ -372,4 +373,4 @@ def executa():
     janela.show()
     myApp.exec_()
 
-#executa()
+executa()
