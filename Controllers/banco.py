@@ -158,6 +158,7 @@ def consulta_personalizada(sql_personalizado):
         return dados
 
 def consulta_faturadas_email(data):
+        data = str(data)
         
         consulta = """
         SELECT DISTINCT 

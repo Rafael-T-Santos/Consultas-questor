@@ -1,7 +1,8 @@
 from PySide2.QtWidgets import (QApplication, QWidget, QLabel,
                                QLineEdit, QPushButton, QMessageBox, 
                                QFrame, QTableView, QHeaderView, QComboBox,
-                               QDateEdit, QAbstractSpinBox, QAbstractItemView)
+                               QDateEdit, QAbstractSpinBox, QAbstractItemView,
+                               QTextEdit)
 from PySide2.QtGui import QIcon, QPixmap, QFont
 from PySide2.QtCore import QDate
 from datetime import date
@@ -9,6 +10,7 @@ from tkinter import Tk
 from Models.modelo import CustomTableModel
 from Models.modelo2 import CustomTableModel2
 from Models.modelo3 import CustomTableModel3
+from datetime import date, datetime
 
 import Controllers.banco as b
 import sys
@@ -74,23 +76,24 @@ class Window(QWidget):
         self.frm_cadastrar.setStyleSheet('background-color: #cde4e0')
         self.frm_cadastrar.setVisible(False)
 
-        self.lbl_nome = QLabel('Nome', self.frm_cadastrar)
-        self.lbl_nome.setGeometry(20, 50, 55, 16)
+        self.lbl_nome = QLabel('Nome Consulta:', self.frm_cadastrar)
+        self.lbl_nome.setGeometry(20, 20, 110, 22)
 
-        self.lbl_cpf = QLabel('CPF', self.frm_cadastrar)
-        self.lbl_cpf.setGeometry(20, 90, 55, 16)
+        self.lbl_sql = QLabel('SQL', self.frm_cadastrar)
+        self.lbl_sql.setGeometry(20, 44, 100, 22)
 
         self.txt_nome = QLineEdit(self.frm_cadastrar)
-        self.txt_nome.setGeometry(80, 50, 721, 22)
+        self.txt_nome.setGeometry(120, 20, 200, 22)
 
-        self.txt_cpf = QLineEdit(self.frm_cadastrar)
-        self.txt_cpf.setGeometry(80, 90, 721, 22)
+        self.txt_sql = QTextEdit(self.frm_cadastrar)
+        self.txt_sql.setGeometry(20, 70, largura_view, altura_view)
+        self.txt_sql.setStyleSheet('background-color: #D5ece9')
 
-        self.btn_limpar = QPushButton('Limpar', self.frm_cadastrar)
-        self.btn_limpar.setGeometry(20, 650, 115, 22)
+        self.btn_limpar = QPushButton('Gravar', self.frm_cadastrar)
+        self.btn_limpar.setGeometry(330, 20, 110, 22)
 
-        self.btn_gravar = QPushButton('Gravar', self.frm_cadastrar)
-        self.btn_gravar.setGeometry(700, 650, 115, 22)
+        self.btn_gravar = QPushButton('Limpar', self.frm_cadastrar)
+        self.btn_gravar.setGeometry(450, 20, 110, 22)
 
         '''
         FRAME DE CONSULTA SQL ===============================================================================
@@ -215,7 +218,8 @@ class Window(QWidget):
         self.data_faturamento.setDate(QDate(ano,mes,dia))
 
         self.txt_resultado_email = QLineEdit(self.frm_email)
-        self.txt_resultado_email.setGeometry(20,44,largura_view,22)   
+        self.txt_resultado_email.setGeometry(20,44,largura_view,22)
+        self.txt_resultado_email.setReadOnly(True)   
 
         self.tabela_email = QTableView(self.frm_email)
         self.tabela_email.setGeometry(20, 70, largura_view, altura_view)
@@ -289,17 +293,7 @@ class Window(QWidget):
         global data_faturamento
         data = str(self.data_faturamento.date())
         data = data.replace('PySide2.QtCore.QDate(', '').replace(')', '').replace(', ','-')
-
-        if data[6] == '-':
-            dia = data[7:9]
-            mes = data[5]
-            ano = data[0:4]
-            data = ano+'-0'+mes+'-'+dia
-        else:
-            dia = data[8:10]
-            mes = data[5:7]
-            ano = data[0:4]
-            data = ano+'-'+mes+'-'+dia
+        data = datetime.strptime(data, '%Y-%m-%d').date()
 
         dados = b.consulta_faturadas_email(data)
         self.modelo = CustomTableModel(dados)
@@ -311,8 +305,7 @@ class Window(QWidget):
             lista.append(dados2[i][0])
         lista = str(lista).replace('[','').replace(']','')
         lista = "1 or cd_cliente in ("+lista+")"
-        self.txt_resultado_email.setText(lista)
-               
+        self.txt_resultado_email.setText(lista)             
 
     def ocultar_frames(self):
         global meus_frames
