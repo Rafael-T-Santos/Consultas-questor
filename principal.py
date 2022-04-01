@@ -2,14 +2,16 @@ from PySide2.QtWidgets import (QApplication, QWidget, QLabel,
                                QLineEdit, QPushButton, QMessageBox, 
                                QFrame, QTableView, QHeaderView, QComboBox,
                                QDateEdit, QAbstractSpinBox, QAbstractItemView,
-                               QTextEdit)
+                               QTextEdit,QTableWidget )
 from PySide2.QtGui import QIcon, QPixmap, QFont
 from PySide2.QtCore import QDate
+
 from datetime import date
 from tkinter import Tk
 from Models.modelo import CustomTableModel
 from Models.modelo2 import CustomTableModel2
 from Models.modelo3 import CustomTableModel3
+from Models.modelo4 import CustomTableModel4
 from datetime import date, datetime
 
 import Controllers.banco as b
@@ -115,6 +117,7 @@ class Window(QWidget):
         self.tabela_consulta.setGeometry(20, 70, largura_view, altura_view)
         self.tabela_consulta.verticalHeader().setVisible(False)
         self.tabela_consulta.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.tabela_consulta.setFrameShape(QFrame.WinPanel)
 
         self.btn_pesquisar = QPushButton('Consultar', self.frm_pesquisar)
         self.btn_pesquisar.setGeometry(700, 20, 80, 22)
@@ -148,6 +151,7 @@ class Window(QWidget):
         self.tabela.setGeometry(20, 70, largura_view, altura_view)
         self.tabela.verticalHeader().setVisible(False)
         self.tabela.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.tabela.setFrameShape(QFrame.WinPanel)
 
         self.titulos = self.tabela.horizontalHeader()
         self.titulos.setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -184,6 +188,7 @@ class Window(QWidget):
         self.tabela_fcp.setGeometry(20, 70, largura_view, altura_view)
         self.tabela_fcp.verticalHeader().setVisible(False)
         self.tabela_fcp.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.tabela_fcp.setFrameShape(QFrame.WinPanel)
 
         self.titulos = self.tabela_fcp.horizontalHeader()
 
@@ -225,6 +230,8 @@ class Window(QWidget):
         self.tabela_email.setGeometry(20, 70, largura_view, altura_view)
         self.tabela_email.verticalHeader().setVisible(False)
         self.tabela_email.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.tabela_email.setFrameShape(QFrame.WinPanel)
+        self.tabela_email.setSortingEnabled(True)
 
         self.titulos = self.tabela_email.horizontalHeader()
         self.titulos.setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -296,9 +303,10 @@ class Window(QWidget):
         data = datetime.strptime(data, '%Y-%m-%d').date()
 
         dados = b.consulta_faturadas_email(data)
-        self.modelo = CustomTableModel(dados)
+        self.modelo = CustomTableModel4(dados)
         self.tabela_email.setModel(self.modelo)
         dados2 = list(dados[0])
+
         lista = []
 
         for i in range(len(dados2)):
@@ -341,6 +349,7 @@ class Window(QWidget):
         self.ocultar_frames()
         self.tabela_email.setModel(None)
         self.frm_email.setVisible(True)
+        self.txt_resultado_email.setText("")
 
     def limpa_fecoep(self):
         global frm_relatorio_fcp

@@ -172,6 +172,7 @@ def consulta_faturadas_email(data):
                     AND T2.DS_EMAIL <> ''
                         ORDER BY T2.CD_ENTIDADE;
                     """
+                    
 
 
         cursor.execute(consulta)
