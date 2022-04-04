@@ -4,7 +4,7 @@ from PySide2.QtWidgets import (QApplication, QWidget, QLabel,
                                QDateEdit, QAbstractSpinBox, QAbstractItemView,
                                QTextEdit,QTableWidget )
 from PySide2.QtGui import QIcon, QPixmap, QFont
-from PySide2.QtCore import QDate
+from PySide2.QtCore import QDate, QSortFilterProxyModel
 
 from datetime import date
 from tkinter import Tk
@@ -118,6 +118,7 @@ class Window(QWidget):
         self.tabela_consulta.verticalHeader().setVisible(False)
         self.tabela_consulta.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.tabela_consulta.setFrameShape(QFrame.WinPanel)
+        self.tabela_consulta.setSortingEnabled(True)
 
         self.btn_pesquisar = QPushButton('Consultar', self.frm_pesquisar)
         self.btn_pesquisar.setGeometry(700, 20, 80, 22)
@@ -152,6 +153,7 @@ class Window(QWidget):
         self.tabela.verticalHeader().setVisible(False)
         self.tabela.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.tabela.setFrameShape(QFrame.WinPanel)
+        self.tabela.setSortingEnabled(True)
 
         self.titulos = self.tabela.horizontalHeader()
         self.titulos.setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -189,6 +191,7 @@ class Window(QWidget):
         self.tabela_fcp.verticalHeader().setVisible(False)
         self.tabela_fcp.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.tabela_fcp.setFrameShape(QFrame.WinPanel)
+        self.tabela_fcp.setSortingEnabled(True)
 
         self.titulos = self.tabela_fcp.horizontalHeader()
 
@@ -207,7 +210,6 @@ class Window(QWidget):
         self.lbl_cod = QLabel('Data de Faturamento:', self.frm_email)
         self.lbl_cod.setGeometry(20, 20, 110, 22)
 
-        # Adicionar bloco de data e guardar na variavel global para utilizar na função
         self.data_faturamento = QDateEdit(self.frm_email)
         self.data_faturamento.setGeometry(140, 20, 100, 22)
         self.data_faturamento.setButtonSymbols(QAbstractSpinBox.UpDownArrows)
@@ -271,30 +273,51 @@ class Window(QWidget):
     def consulta_produtos(self):
         global txt_cod_consulta
         produtos = self.txt_cod_consulta.text()
+        produtos = produtos.replace(';',',')
         dados = b.consulta_produtos(produtos)
         self.modelo = CustomTableModel(dados)
-        self.tabela.setModel(self.modelo)
+
+        proxymodel = QSortFilterProxyModel()
+        proxymodel.setSourceModel(self.modelo)
+
+        self.tabela.setModel(proxymodel)
 
     def consulta_fecoep(self):
         dados = b.consulta_fecoep()
         self.modelo = CustomTableModel2(dados)
-        self.tabela_fcp.setModel(self.modelo)
+        
+        proxymodel = QSortFilterProxyModel()
+        proxymodel.setSourceModel(self.modelo)
+
+        self.tabela_fcp.setModel(proxymodel)
 
     def faturamento_cpf(self):
         dados = b.faturamento_cpf()
         self.modelo = CustomTableModel3(dados)
-        self.tabela_fcp.setModel(self.modelo)
+
+        proxymodel = QSortFilterProxyModel()
+        proxymodel.setSourceModel(self.modelo)
+
+        self.tabela_fcp.setModel(proxymodel)
 
     def consulta_retiradas(self):
         dados = b.consulta_retiradas()
         self.modelo = CustomTableModel3(dados)
-        self.tabela_fcp.setModel(self.modelo)
+
+        proxymodel = QSortFilterProxyModel()
+        proxymodel.setSourceModel(self.modelo)
+
+        self.tabela_fcp.setModel(proxymodel)
 
     def consulta_personalizada(self):
         sql_personalizado = self.txt_cod_pesquisa.text()
         dados = b.consulta_personalizada(sql_personalizado)
         self.modelo = CustomTableModel3(dados)
-        self.tabela_consulta.setModel(self.modelo)
+
+        proxymodel = QSortFilterProxyModel()
+        proxymodel.setSourceModel(self.modelo)
+
+        self.tabela_consulta.setModel(proxymodel)
 
     def consulta_email_faturado(self):
         global data_faturamento
@@ -304,7 +327,11 @@ class Window(QWidget):
 
         dados = b.consulta_faturadas_email(data)
         self.modelo = CustomTableModel4(dados)
-        self.tabela_email.setModel(self.modelo)
+
+        proxymodel = QSortFilterProxyModel()
+        proxymodel.setSourceModel(self.modelo)
+
+        self.tabela_email.setModel(proxymodel)
         dados2 = list(dados[0])
 
         lista = []
