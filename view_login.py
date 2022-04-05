@@ -58,7 +58,6 @@ class Window(QWidget):
         campo_user = QLineEdit(self)
         campo_user.move(100, 170)
         campo_user.setFont(font_campos)
-        campo_user.returnPressed.setFocus(campo_senha)
 
         lbl_senha = QLabel('Senha', self)
         lbl_senha.move(100, 210)
@@ -140,4 +139,4 @@ def executa():
     myApp.exec_()
     return logou
 
-executa()
+#executa()
