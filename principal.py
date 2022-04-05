@@ -402,4 +402,4 @@ def executa():
     janela.show()
     myApp.exec_()
 
-executa()
+#executa()

@@ -1,6 +1,7 @@
 from telnetlib import LOGOUT
 from PySide2.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QMessageBox
 from PySide2.QtGui import QIcon, QPixmap, QFont
+from PySide2 import QtCore
 import sys
 import Controllers.controle as c
 
@@ -57,6 +58,7 @@ class Window(QWidget):
         campo_user = QLineEdit(self)
         campo_user.move(100, 170)
         campo_user.setFont(font_campos)
+        campo_user.returnPressed.setFocus(campo_senha)
 
         lbl_senha = QLabel('Senha', self)
         lbl_senha.move(100, 210)
@@ -67,6 +69,7 @@ class Window(QWidget):
         campo_senha.setFont(font_campos)
         # campo_senha.setPlaceholderText('Digite sua senha') #Caso quisesse que esse texto ficasse dentro do quadro da senha
         campo_senha.setEchoMode(QLineEdit.EchoMode.Password)
+        campo_senha.returnPressed.connect(self.validar_login)
 
     def set_btn(self):
         global btn_entrar
@@ -136,3 +139,5 @@ def executa():
     janela.show()
     myApp.exec_()
     return logou
+
+executa()
