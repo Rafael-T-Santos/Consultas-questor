@@ -201,6 +201,7 @@ class Window(QWidget):
  
         global frm_email
         global data_faturamento
+        global ano, mes, dia
 
         self.frm_email = QFrame(self)
         self.frm_email.setGeometry(170, 0, 1920, 1080)
@@ -264,17 +265,38 @@ class Window(QWidget):
         self.limpa_fecoep()
         valor_combo_box = self.combo_box.currentText()
         if valor_combo_box == 'Produtos sem Fecoep':
-            self.consulta_fecoep()
+            try:
+                self.consulta_fecoep()
+            except:
+                self.erro_consulta()         
         elif valor_combo_box == 'Faturamento em CPF':
-            self.faturamento_cpf()
+            try:
+                self.faturamento_cpf()
+            except:
+                self.erro_consulta()
         elif valor_combo_box == 'Retiradas Pendentes':
-            self.consulta_retiradas()
+            try:
+                self.consulta_retiradas()
+            except:
+                self.erro_consulta()
+
+    def erro_consulta(self):
+        msg_erro = QMessageBox()
+        appIcon = QIcon("imgs/logo.png")
+        msg_erro.setWindowIcon(appIcon)
+        msg_erro.setIcon(QMessageBox.Critical)
+        msg_erro.setWindowTitle('Assistente de Consultas')
+        msg_erro.setText('Não há valores a consultar')
+        msg_erro.exec()
 
     def consulta_produtos(self):
         global txt_cod_consulta
         produtos = self.txt_cod_consulta.text()
         produtos = produtos.replace(';',',')
-        dados = b.consulta_produtos(produtos)
+        try:
+            dados = b.consulta_produtos(produtos)
+        except:
+                self.erro_consulta()
         self.modelo = CustomTableModel(dados)
 
         proxymodel = QSortFilterProxyModel()
@@ -311,7 +333,10 @@ class Window(QWidget):
 
     def consulta_personalizada(self):
         sql_personalizado = self.txt_cod_pesquisa.text()
-        dados = b.consulta_personalizada(sql_personalizado)
+        try:
+            dados = b.consulta_personalizada(sql_personalizado)
+        except:
+                self.erro_consulta()
         self.modelo = CustomTableModel3(dados)
 
         proxymodel = QSortFilterProxyModel()
@@ -323,10 +348,13 @@ class Window(QWidget):
         global data_faturamento
         data = str(self.data_faturamento.date())
         data = data.replace('PySide2.QtCore.QDate(', '').replace(')', '').replace(', ','-')
-        data = datetime.strptime(data, '%Y-%m-%d').date()
-
+        data = datetime.strptime(data, '%Y-%m-%d').date()            
         dados = b.consulta_faturadas_email(data)
-        self.modelo = CustomTableModel4(dados)
+        
+        try:
+            self.modelo = CustomTableModel4(dados)
+        except:
+                self.erro_consulta()
 
         proxymodel = QSortFilterProxyModel()
         proxymodel.setSourceModel(self.modelo)
@@ -340,7 +368,7 @@ class Window(QWidget):
             lista.append(dados2[i][0])
         lista = str(lista).replace('[','').replace(']','')
         lista = "1 or cd_cliente in ("+lista+")"
-        self.txt_resultado_email.setText(lista)             
+        self.txt_resultado_email.setText(lista)        
 
     def ocultar_frames(self):
         global meus_frames
@@ -373,6 +401,9 @@ class Window(QWidget):
 
     def frame_email(self):
         global frm_email
+        global ano, mes, dia
+
+        self.data_faturamento.setDate(QDate(ano,mes,dia))
         self.ocultar_frames()
         self.tabela_email.setModel(None)
         self.frm_email.setVisible(True)
@@ -388,6 +419,9 @@ class Window(QWidget):
 
     def limpa_email(self):
         global frm_email
+        global ano, mes, dia
+
+        self.data_faturamento.setDate(QDate(ano,mes,dia))
         self.tabela_email.setModel(None)
         self.txt_resultado_email.setText("")
 
@@ -402,4 +436,4 @@ def executa():
     janela.show()
     myApp.exec_()
 
-#executa()
+executa()
