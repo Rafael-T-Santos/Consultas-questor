@@ -12,6 +12,7 @@ from Models.modelo import CustomTableModel
 from Models.modelo2 import CustomTableModel2
 from Models.modelo3 import CustomTableModel3
 from Models.modelo4 import CustomTableModel4
+from Models.modelo5 import CustomTableModel5
 from datetime import date, datetime
 
 import Controllers.banco as b
@@ -324,7 +325,7 @@ class Window(QWidget):
 
     def consulta_retiradas(self):
         dados = b.consulta_retiradas()
-        self.modelo = CustomTableModel3(dados)
+        self.modelo = CustomTableModel5(dados)
 
         proxymodel = QSortFilterProxyModel()
         proxymodel.setSourceModel(self.modelo)
@@ -367,7 +368,7 @@ class Window(QWidget):
         for i in range(len(dados2)):
             lista.append(dados2[i][0])
         lista = str(lista).replace('[','').replace(']','')
-        lista = "1 or cd_cliente in ("+lista+")"
+        lista = f"1 or cd_cliente in ({lista})"
         self.txt_resultado_email.setText(lista)        
 
     def ocultar_frames(self):
@@ -436,4 +437,4 @@ def executa():
     janela.show()
     myApp.exec_()
 
-executa()
+#executa()

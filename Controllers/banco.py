@@ -230,8 +230,118 @@ def consulta_retiradas():
                                                             ORDER BY NR_DOCUMENTO DESC;
                     """
 
+        consulta_alterada = """
+        SELECT 
+        T3.NR_DOCUMENTO, 
+        T1.CD_ITEM AS ITEM, 
+        T1.CD_MATERIAL AS COD, 
+        T1.DS_MATERIAL AS PRODUTO, 
+        T1.CD_CME AS COD, 
+        T1.DS_CME AS NATUREZA, 
+        T1.NR_QUANTIDADE AS QUANTIDADE,
+        (CASE WHEN (T1.NR_QUANTIDADE - (SELECT SUM(NR_QUANTIDADE) 
+                                            FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                                WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                                AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                                    GROUP BY T2.CD_MATERIAL)) IS NULL THEN T1.NR_QUANTIDADE 
+                                                        ELSE 
+                                                            (T1.NR_QUANTIDADE - (SELECT SUM(NR_QUANTIDADE) 
+                                                                                    FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                                                                        WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                                                                        AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                                                                            GROUP BY T2.CD_MATERIAL)) END) AS QUANT_IMPORTAR,  
+        (CASE WHEN (SELECT SUM(NR_QUANTIDADE) 
+                        FROM SEL_NOTAS_EMITIDAS_ITENS T2
+                            WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                            AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                GROUP BY T2.CD_MATERIAL) IS NULL THEN 0 
+                                    ELSE 
+                                        (SELECT SUM(NR_QUANTIDADE) 
+                                            FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                                WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                                AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                                    GROUP BY T2.CD_MATERIAL) END) AS QUANT_FATURADA
+            FROM DBO.TBL_NOTAS_FATURAMENTO_ITENS T1
+                INNER JOIN TBL_NOTAS_FATURAMENTO T3
+                ON T1.CD_LANCAMENTO = T3.CD_LANCAMENTO
+                    WHERE (X_SIMPLES_REMESSA_ENTREGA_FUTURA = 1)
+                    AND T1.NR_QUANTIDADE <> (CASE WHEN (SELECT SUM(NR_QUANTIDADE) 
+                        FROM SEL_NOTAS_EMITIDAS_ITENS T2
+                            WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                            AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                GROUP BY T2.CD_MATERIAL) IS NULL THEN 0 
+                                    ELSE 
+                                        (SELECT SUM(NR_QUANTIDADE) 
+                                            FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                                WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                                AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                                    GROUP BY T2.CD_MATERIAL) END)
+														AND T3.CD_FILIAL = 3
+                                                            ORDER BY NR_DOCUMENTO DESC;
+            """
 
-        cursor.execute(consulta)
+        consulta3 = """
+        SELECT 
+        T3.NR_DOCUMENTO, 
+        T1.CD_ITEM AS ITEM, 
+        T1.CD_MATERIAL AS COD, 
+        T1.DS_MATERIAL AS PRODUTO, 
+        T1.CD_CME AS COD, 
+        T1.DS_CME AS NATUREZA, 
+        T1.NR_QUANTIDADE AS QUANTIDADE,
+        (CASE WHEN (T1.NR_QUANTIDADE - (SELECT SUM(NR_QUANTIDADE) 
+                                            FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                                WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                                AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                                    GROUP BY T2.CD_MATERIAL)) IS NULL THEN T1.NR_QUANTIDADE 
+                                                        ELSE 
+                                                            (T1.NR_QUANTIDADE - (SELECT SUM(NR_QUANTIDADE) 
+                                                                                    FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                                                                        WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                                                                        AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                                                                            GROUP BY T2.CD_MATERIAL)) END) AS QUANT_IMPORTAR,  
+        (CASE WHEN (SELECT SUM(NR_QUANTIDADE) 
+                        FROM SEL_NOTAS_EMITIDAS_ITENS T2
+                            WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                            AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                GROUP BY T2.CD_MATERIAL) IS NULL THEN 0 
+                                    ELSE 
+                                        (SELECT SUM(NR_QUANTIDADE) 
+                                            FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                                WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                                AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                                    GROUP BY T2.CD_MATERIAL) END) AS QUANT_FATURADA
+            FROM DBO.TBL_NOTAS_FATURAMENTO_ITENS T1
+                INNER JOIN TBL_NOTAS_FATURAMENTO T3
+                ON T1.CD_LANCAMENTO = T3.CD_LANCAMENTO
+                    WHERE (X_SIMPLES_REMESSA_ENTREGA_FUTURA = 1)
+                    AND T1.NR_QUANTIDADE <> (CASE WHEN (SELECT SUM(NR_QUANTIDADE) 
+                        FROM SEL_NOTAS_EMITIDAS_ITENS T2
+                            WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                            AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                GROUP BY T2.CD_MATERIAL) IS NULL THEN 0 
+                                    ELSE 
+                                        (SELECT SUM(NR_QUANTIDADE) 
+                                            FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                                WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                                AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                                    GROUP BY T2.CD_MATERIAL) END)
+														AND T3.CD_FILIAL = 3
+
+														AND (CASE WHEN (T1.NR_QUANTIDADE - (SELECT SUM(NR_QUANTIDADE) 
+                                            FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                                WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                                AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                                    GROUP BY T2.CD_MATERIAL)) IS NULL THEN 0 
+                                                        ELSE 
+                                                            (T1.NR_QUANTIDADE - (SELECT SUM(NR_QUANTIDADE) 
+                                                                                    FROM SEL_NOTAS_EMITIDAS_ITENS T2 
+                                                                                        WHERE T1.CD_MATERIAL = T2.CD_MATERIAL
+                                                                                        AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
+                                                                                            GROUP BY T2.CD_MATERIAL)) END) >= 0
+                                                            ORDER BY NR_DOCUMENTO DESC;"""
+
+        cursor.execute(consulta3)
 
         resultados = cursor.fetchall()
 

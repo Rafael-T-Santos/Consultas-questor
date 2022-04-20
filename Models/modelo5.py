@@ -1,7 +1,7 @@
 from PySide2.QtCore import Qt, QAbstractTableModel, QModelIndex
 from PySide2.QtGui import QColor
 
-class CustomTableModel4(QAbstractTableModel):
+class CustomTableModel5(QAbstractTableModel):
     def __init__(self, data=None):
         QAbstractTableModel.__init__(self)
 
@@ -33,7 +33,7 @@ class CustomTableModel4(QAbstractTableModel):
         row = index.row()
 
         if role == Qt.DisplayRole:
-            if column == 8:
+            if column == 8 or column == 7 or column == 6:
                 self.meus_dados[row][column] = float(self.meus_dados[row][column])
             else:
                 self.meus_dados[row][column] = str(self.meus_dados[row][column])
