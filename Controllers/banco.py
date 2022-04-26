@@ -19,6 +19,7 @@ cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=' +
                       server+';DATABASE='+database+';UID='+username+';PWD=' + password)
 cursor = cnxn.cursor()
 df = pd.DataFrame()
+df_sql = pd.DataFrame()
 
 
 def consulta_produtos(produtos):
@@ -327,6 +328,7 @@ def consulta_retiradas():
                                                 AND T1.CD_LANCAMENTO = T2.CD_NOTA_FATURAMENTO_IMPORTADA
                                                     GROUP BY T2.CD_MATERIAL) END)
 														AND T3.CD_FILIAL = 3
+                                                        AND T1.CD_CME = 61
 
 														AND (CASE WHEN (T1.NR_QUANTIDADE - (SELECT SUM(NR_QUANTIDADE) 
                                             FROM SEL_NOTAS_EMITIDAS_ITENS T2 
@@ -350,3 +352,26 @@ def consulta_retiradas():
 
         dados = (resultados, nome_colunas)
         return dados
+
+def consulta_vl_venda(produtos): 
+    consulta = f"""SELECT VL_VENDA FROM TBL_MATERIAIS WHERE CD_MATERIAL = {produtos};"""
+
+    df_sql = pd.read_sql_query(consulta, cnxn)
+    return float(df_sql['VL_VENDA'])
+
+def update_preco(cd_material, vl_venda_dois, vl_unitario_varejo, vl_unitario_atacado, vl_unitario_retirada):
+    update_tbl_materiais = f"""UPDATE TBL_MATERIAIS SET VL_VENDA = {vl_unitario_atacado}, VL_VENDA_DOIS = {vl_venda_dois} WHERE CD_MATERIAL = {cd_material};"""
+    update_varejo = f"""UPDATE TBL_TABELA_PRECOS_ITENS SET VL_UNITARIO = {vl_unitario_varejo} WHERE CD_TABELA_PRECO = 8 AND CD_MATERIAL = {cd_material};"""
+    update_atacado = f"""UPDATE TBL_TABELA_PRECOS_ITENS SET VL_UNITARIO = {vl_unitario_atacado} WHERE CD_TABELA_PRECO = 9 AND CD_MATERIAL = {cd_material};"""
+    update_retirada = f"""UPDATE TBL_TABELA_PRECOS_ITENS SET VL_UNITARIO = {vl_unitario_retirada} WHERE CD_TABELA_PRECO = 10 AND CD_MATERIAL = {cd_material};"""
+
+    cursor.execute(update_tbl_materiais)
+    cnxn.commit()
+    cursor.execute(update_varejo)
+    cnxn.commit()
+    cursor.execute(update_atacado)
+    cnxn.commit()
+    cursor.execute(update_retirada)
+    cnxn.commit()
+    print('Tudo OK!')
+    

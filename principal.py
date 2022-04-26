@@ -2,7 +2,7 @@ from PySide2.QtWidgets import (QApplication, QWidget, QLabel,
                                QLineEdit, QPushButton, QMessageBox, 
                                QFrame, QTableView, QHeaderView, QComboBox,
                                QDateEdit, QAbstractSpinBox, QAbstractItemView,
-                               QTextEdit,QTableWidget )
+                               QTextEdit,QTableWidget, QToolButton, QFileDialog)
 from PySide2.QtGui import QIcon, QPixmap, QFont
 from PySide2.QtCore import QDate, QSortFilterProxyModel
 
@@ -18,6 +18,15 @@ from datetime import date, datetime
 import Controllers.banco as b
 import sys
 import pyperclip as pc
+import pandas as pd
+import warnings
+#ignore by message
+warnings.filterwarnings("ignore", category=FutureWarning)
+import xlrd
+import xlwt
+
+
+from Models.modelo6 import PandasModel
 
 class Window(QWidget):
     def __init__(self):
@@ -69,6 +78,11 @@ class Window(QWidget):
         self.btn_relatorio_fcp.setFont(font_btn)
         self.btn_relatorio_fcp.setGeometry(0, 200, 170, 50)
         self.btn_relatorio_fcp.clicked.connect(self.frame_email)
+
+        self.btn_relatorio_fcp = QPushButton('Atualiza Preco', self)
+        self.btn_relatorio_fcp.setFont(font_btn)
+        self.btn_relatorio_fcp.setGeometry(0, 250, 170, 50)
+        self.btn_relatorio_fcp.clicked.connect(self.frame_preco)
 
         '''
         FRAME DE CADASTRO ===============================================================================
@@ -252,11 +266,96 @@ class Window(QWidget):
         self.btn_limpar.setGeometry(480, 20, 80, 22)
         self.btn_limpar.clicked.connect(self.limpa_email)
         
+        '''
+        FRAME UPDATE PRECO ============================================================================
+        '''
+        global frm_preco, txt_arquivo
+        self.frm_preco = QFrame(self)
+        self.frm_preco.setGeometry(170, 0, 1920, 1080)
+        self.frm_preco.setStyleSheet('background-color: #cde4e0')
+        self.frm_preco.setVisible(False)
+
+        self.lbl_arquivo = QLabel('Arquivo:', self.frm_preco)
+        self.lbl_arquivo.setGeometry(20, 20, 55, 22)
+
+        self.txt_arquivo = QLineEdit(self.frm_preco)
+        self.txt_arquivo.setGeometry(80, 20, 400, 22)
+        self.txt_arquivo.setPlaceholderText('Escolha o arquivo que contem os preços.')
+
+        self.lbl_info = QLabel('O arquivo deve estar no formato .xls e conter uma planilha com nome "preco" sem aspas dentro dele.', self.frm_preco)
+        self.lbl_info.setGeometry(20, 40, 500, 22)
+
+        self.lbl_info2 = QLabel('O arquivo deve conter OBRIGATORIAMENTE as colunas: Código, Material, ATACADO, C/ST, VAREJO, RETIRADA', self.frm_preco)
+        self.lbl_info2.setGeometry(20, 60, 600, 22)
+
+        self.btn_pesquisar = QPushButton('Arquivo', self.frm_preco)
+        self.btn_pesquisar.setGeometry(500, 20, 80, 22)
+        self.btn_pesquisar.clicked.connect(self.browsefiles)
+
+        self.btn_atualizar = QPushButton('Atualizar', self.frm_preco)
+        self.btn_atualizar.setGeometry(600, 20, 80, 22)
+        self.btn_atualizar.clicked.connect(self.atualiza)
+
+        self.tabela_preco = QTableView(self.frm_preco)
+        self.tabela_preco.setGeometry(20, 80, largura_view, altura_view)
+        self.tabela_preco.verticalHeader().setVisible(False)
+        self.tabela_preco.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.tabela_preco.setFrameShape(QFrame.WinPanel)
+        self.tabela_preco.setSortingEnabled(True)
+
+        self.titulos = self.tabela.horizontalHeader()
+        self.titulos.setSectionResizeMode(QHeaderView.ResizeToContents)
 
         global meus_frames
         self.meus_frames = (self.frm_cadastrar, self.frm_pesquisar,
                             self.frm_relatorio, self.frm_relatorio_fcp,
-                            self.frm_email)
+                            self.frm_email, self.frm_preco)
+
+    def browsefiles(self):
+        global fname
+        fname = str(QFileDialog.getOpenFileName(self, "Planilhas (*.xls)"))
+        fname = fname.replace("('", '').replace("', 'All Files (*)')", '')
+        self.txt_arquivo.setText(fname)
+        df_preco = pd.read_excel(fname, sheet_name = 'preco')
+        df_preco = df_preco[['Código','Material', 'ATACADO', 'C/ST', 'VAREJO', 'RETIRADA']]
+        self.modelo = PandasModel(df_preco)
+        proxymodel = QSortFilterProxyModel()
+        proxymodel.setSourceModel(self.modelo)
+        self.tabela_preco.setModel(proxymodel)
+
+    def atualiza(self):
+        df = pd.read_excel(fname,sheet_name='preco')
+        df = df[['Código','Material', 'ATACADO', 'C/ST', 'VAREJO', 'RETIRADA']]
+        colunas = {
+            'Código' : [],
+            'Material' : [],
+            'Valor Cadastro' : [],
+            'ATACADO': [],
+            'C/ST' : [],
+            'VAREJO': [],
+            'RETIRADA': []
+            }
+        df_manteve = pd.DataFrame(colunas)
+        df_alterado = pd.DataFrame(colunas)
+
+        for _, row in df.iterrows():
+            codigo = row['Código']
+            material = row['Material']
+            atacado = round(row['ATACADO'],2)
+            st = round(row['C/ST'],2)
+            varejo = round(row['VAREJO'],2)
+            retirada = round(row['RETIRADA'],2)
+            valor_cadastro = b.consulta_vl_venda(row['Código'])
+
+            if valor_cadastro >= atacado:
+                df_manteve = df_manteve.append({'Código': codigo, 'Material': material, 'Valor Cadastro': valor_cadastro, 'ATACADO': atacado, 'C/ST': st, 'VAREJO': varejo, 'RETIRADA': retirada} , ignore_index= True)
+            else:
+                df_alterado = df_alterado.append({'Código': codigo, 'Material': material, 'Valor Cadastro': valor_cadastro, 'ATACADO': atacado, 'C/ST': st, 'VAREJO': varejo, 'RETIRADA': retirada} , ignore_index= True)
+                b.update_preco(codigo, st, varejo, atacado, retirada)
+
+        df_manteve.to_excel('Manteve.xls', index = False)
+        df_alterado.to_excel('Alterado.xls', index = False)
+        self.sucesso_consulta()
 
     def copiar_txt_resultado_email(self):
         copia = self.txt_resultado_email.text()
@@ -288,6 +387,15 @@ class Window(QWidget):
         msg_erro.setIcon(QMessageBox.Critical)
         msg_erro.setWindowTitle('Assistente de Consultas')
         msg_erro.setText('Não há valores a consultar')
+        msg_erro.exec()
+
+    def sucesso_consulta(self):
+        msg_erro = QMessageBox()
+        appIcon = QIcon("imgs/logo.png")
+        msg_erro.setWindowIcon(appIcon)
+        msg_erro.setIcon(QMessageBox.Information)
+        msg_erro.setWindowTitle('Assistente de Consultas')
+        msg_erro.setText('Update efetuado com Sucesso')
         msg_erro.exec()
 
     def consulta_produtos(self):
@@ -409,6 +517,12 @@ class Window(QWidget):
         self.tabela_email.setModel(None)
         self.frm_email.setVisible(True)
         self.txt_resultado_email.setText("")
+
+    def frame_preco(self):
+        global frm_preco
+        self.ocultar_frames()
+        self.tabela_preco.setModel(None)
+        self.frm_preco.setVisible(True)
 
     def limpa_fecoep(self):
         global frm_relatorio_fcp
