@@ -1,0 +1,2 @@
+server;database;username;password
+tcp:192.168.0.29,391;nGestao_Historico_Dados;sa;nordeste

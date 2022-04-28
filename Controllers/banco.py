@@ -375,3 +375,4 @@ def update_preco(cd_material, vl_venda_dois, vl_unitario_varejo, vl_unitario_ata
     cnxn.commit()
     print('Tudo OK!')
     
+

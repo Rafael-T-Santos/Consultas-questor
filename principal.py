@@ -13,9 +13,12 @@ from Models.modelo2 import CustomTableModel2
 from Models.modelo3 import CustomTableModel3
 from Models.modelo4 import CustomTableModel4
 from Models.modelo5 import CustomTableModel5
+from Models.modelo7 import CustomTableModel7
+
 from datetime import date, datetime
 
 import Controllers.banco as b
+import Controllers.banco_historico as b2
 import sys
 import pyperclip as pc
 import pandas as pd
@@ -39,6 +42,8 @@ class Window(QWidget):
 
         # x,y,w,h -> Afastado da esquerda, afastado do topo, largura, altura
         self.setGeometry(largura_monitor*0.1, altura_monitor*0.1, largura_monitor*0.8, altura_monitor*0.8)
+        #self.showMaximized()
+
         self.setAutoFillBackground(True)
         self.setStyleSheet('background-color: #aecfca;')
 
@@ -50,8 +55,10 @@ class Window(QWidget):
         self.setWindowIcon(appIcon)
 
     def def_formulario(self):
-        altura_view = altura_monitor*0.8 - 90
-        largura_view = largura_monitor*0.8 - 210
+        #altura_view = altura_monitor*0.8 - 90
+        #largura_view = largura_monitor*0.8 - 210
+        altura_view = altura_monitor - 160
+        largura_view = largura_monitor - 210
 
         font_btn = QFont("fonts/Exo2_Bold.ttf", 14)
         self.btn_cadastrar = QPushButton('Cadastrar', self)
@@ -83,6 +90,12 @@ class Window(QWidget):
         self.btn_relatorio_fcp.setFont(font_btn)
         self.btn_relatorio_fcp.setGeometry(0, 250, 170, 50)
         self.btn_relatorio_fcp.clicked.connect(self.frame_preco)
+
+        self.btn_itens_excluidos = QPushButton('Itens Excluidos', self)
+        self.btn_itens_excluidos.setFont(font_btn)
+        self.btn_itens_excluidos.setGeometry(0, 300, 170, 50)
+        self.btn_itens_excluidos.clicked.connect(self.frame_itens_excluidos)
+        
 
         '''
         FRAME DE CADASTRO ===============================================================================
@@ -296,6 +309,17 @@ class Window(QWidget):
         self.btn_atualizar.setGeometry(600, 20, 80, 22)
         self.btn_atualizar.clicked.connect(self.atualiza)
 
+        self.lbl_info = QLabel('Use essa opção apenas se o preço da tabela\nfor menor que o valor de venda do item.', self.frm_preco)
+        self.lbl_info.setGeometry(725, 20, 250, 30)
+
+        self.btn_pesquisar2 = QPushButton('Pesquisar', self.frm_preco)
+        self.btn_pesquisar2.setGeometry(725, 55, 80, 22)
+        self.btn_pesquisar2.clicked.connect(self.browsefiles2)
+
+        self.btn_pesquisar2 = QPushButton('Atualizar', self.frm_preco)
+        self.btn_pesquisar2.setGeometry(835, 55, 80, 22)
+        self.btn_pesquisar2.clicked.connect(self.confirmacao_consulta)
+
         self.tabela_preco = QTableView(self.frm_preco)
         self.tabela_preco.setGeometry(20, 80, largura_view, altura_view)
         self.tabela_preco.verticalHeader().setVisible(False)
@@ -306,10 +330,53 @@ class Window(QWidget):
         self.titulos = self.tabela.horizontalHeader()
         self.titulos.setSectionResizeMode(QHeaderView.ResizeToContents)
 
+
+        '''
+        FRAME DE ITENS EXCLUIDOS ============================================================================
+        '''
+        global frm_itens_excluidos
+        self.frm_itens_excluidos = QFrame(self)
+        self.frm_itens_excluidos.setGeometry(170, 0, 1920, 1080)
+        self.frm_itens_excluidos.setStyleSheet('background-color: #cde4e0')
+        self.frm_itens_excluidos.setVisible(False)
+
+        self.lbl_cod_pedido = QLabel('Pedido:', self.frm_itens_excluidos)
+        self.lbl_cod_pedido.setGeometry(20, 20, 55, 22)
+
+        global txt_cod_pedido
+        self.txt_cod_pedido = QLineEdit(self.frm_itens_excluidos)
+        self.txt_cod_pedido.setGeometry(80, 20, 200, 22)
+
+        self.lbl_cod_cliente = QLabel('Cliente:', self.frm_itens_excluidos)
+        self.lbl_cod_cliente.setGeometry(20, 45, 55, 22)
+
+        global txt_cod_cliente
+        self.txt_cod_cliente = QLineEdit(self.frm_itens_excluidos)
+        self.txt_cod_cliente.setGeometry(80, 45, 200, 22)
+
+        self.btn_pesquisar_ped = QPushButton('Pesquisar', self.frm_itens_excluidos)
+        self.btn_pesquisar_ped.setGeometry(300, 20, 80, 22)
+        self.btn_pesquisar_ped.clicked.connect(self.consulta_itens_excluidos)
+
+        self.btn_limpar_ped = QPushButton('Limpar', self.frm_itens_excluidos)
+        self.btn_limpar_ped.setGeometry(400, 20, 80, 22)
+        self.btn_limpar_ped.clicked.connect(self.limpa_itens_excluidos)
+
+        self.tabela_ped = QTableView(self.frm_itens_excluidos)
+        self.tabela_ped.setGeometry(20, 70, largura_view, altura_view)
+        self.tabela_ped.verticalHeader().setVisible(False)
+        self.tabela_ped.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.tabela_ped.setFrameShape(QFrame.WinPanel)
+        self.tabela_ped.setSortingEnabled(True)
+
+        self.titulos = self.tabela_ped.horizontalHeader()
+        self.titulos.setSectionResizeMode(QHeaderView.ResizeToContents)
+
+
         global meus_frames
         self.meus_frames = (self.frm_cadastrar, self.frm_pesquisar,
                             self.frm_relatorio, self.frm_relatorio_fcp,
-                            self.frm_email, self.frm_preco)
+                            self.frm_email, self.frm_preco, self.frm_itens_excluidos)
 
     def browsefiles(self):
         global fname
@@ -317,6 +384,18 @@ class Window(QWidget):
         fname = fname.replace("('", '').replace("', 'All Files (*)')", '')
         self.txt_arquivo.setText(fname)
         df_preco = pd.read_excel(fname, sheet_name = 'preco')
+        df_preco = df_preco[['Código','Material', 'ATACADO', 'C/ST', 'VAREJO', 'RETIRADA']]
+        self.modelo = PandasModel(df_preco)
+        proxymodel = QSortFilterProxyModel()
+        proxymodel.setSourceModel(self.modelo)
+        self.tabela_preco.setModel(proxymodel)
+
+    def browsefiles2(self):
+        global fname2
+        fname2 = str(QFileDialog.getOpenFileName(self, "Planilhas (*.xls)"))
+        fname2 = fname2.replace("('", '').replace("', 'All Files (*)')", '')
+        self.txt_arquivo.setText(fname2)
+        df_preco = pd.read_excel(fname2, sheet_name = 'preco')
         df_preco = df_preco[['Código','Material', 'ATACADO', 'C/ST', 'VAREJO', 'RETIRADA']]
         self.modelo = PandasModel(df_preco)
         proxymodel = QSortFilterProxyModel()
@@ -353,9 +432,25 @@ class Window(QWidget):
                 df_alterado = df_alterado.append({'Código': codigo, 'Material': material, 'Valor Cadastro': valor_cadastro, 'ATACADO': atacado, 'C/ST': st, 'VAREJO': varejo, 'RETIRADA': retirada} , ignore_index= True)
                 b.update_preco(codigo, st, varejo, atacado, retirada)
 
-        df_manteve.to_excel('Manteve.xls', index = False)
-        df_alterado.to_excel('Alterado.xls', index = False)
+        df_manteve.to_excel('Planilhas/Manteve.xls',sheet_name = 'preco', index = False)
+        df_alterado.to_excel('Planilhas/Alterado.xls',sheet_name = 'preco', index = False)
         self.sucesso_consulta()
+
+    def atualiza_direto(self):
+
+        df = pd.read_excel(fname2,sheet_name='preco')
+        df = df[['Código','Material', 'ATACADO', 'C/ST', 'VAREJO', 'RETIRADA']]
+        
+        for _, row in df.iterrows():
+            codigo = row['Código']
+            material = row['Material']
+            atacado = round(row['ATACADO'],2)
+            st = round(row['C/ST'],2)
+            varejo = round(row['VAREJO'],2)
+            retirada = round(row['RETIRADA'],2)
+            valor_cadastro = b.consulta_vl_venda(row['Código'])
+            b.update_preco(codigo, st, varejo, atacado, retirada)
+            self.sucesso_consulta()
 
     def copiar_txt_resultado_email(self):
         copia = self.txt_resultado_email.text()
@@ -379,6 +474,18 @@ class Window(QWidget):
                 self.consulta_retiradas()
             except:
                 self.erro_consulta()
+
+    def confirmacao_consulta(self):
+        msg = QMessageBox.question(self,
+                                    'Assistente de Consultas',
+                                    'Deseja confirmar a operação?\nSerão atualizados todos os preços\nque constam na planilha.',
+                                    QMessageBox.Yes | QMessageBox.No)                            
+        if msg == QMessageBox.Yes:
+            self.atualiza_direto()
+        else:
+            pass
+
+
 
     def erro_consulta(self):
         msg_erro = QMessageBox()
@@ -412,6 +519,23 @@ class Window(QWidget):
         proxymodel.setSourceModel(self.modelo)
 
         self.tabela.setModel(proxymodel)
+
+    def consulta_itens_excluidos(self):
+        global txt_cod_pedido
+        global txt_cod_cliente
+
+        pedidos = self.txt_cod_pedido.text()
+        clientes = self.txt_cod_cliente.text()
+        try:
+            dados = b2.consulta_itens_excluidos(pedidos, clientes)
+        except:
+                self.erro_consulta()
+        self.modelo = CustomTableModel7(dados)
+
+        proxymodel = QSortFilterProxyModel()
+        proxymodel.setSourceModel(self.modelo)
+
+        self.tabela_ped.setModel(proxymodel)
 
     def consulta_fecoep(self):
         dados = b.consulta_fecoep()
@@ -519,10 +643,20 @@ class Window(QWidget):
         self.txt_resultado_email.setText("")
 
     def frame_preco(self):
-        global frm_preco
+        global frm_preco, fname, fname2
         self.ocultar_frames()
-        self.tabela_preco.setModel(None)
+        self.tabela_ped.setModel(None)
         self.frm_preco.setVisible(True)
+        self.txt_arquivo.setText("")
+        fname = ''
+        fname2 = ''
+
+    def frame_itens_excluidos(self):
+        global frm_itens_excluidos
+        self.ocultar_frames()
+        self.tabela_ped.setModel(None)
+        self.txt_cod_pedido.setText("")
+        self.frm_itens_excluidos.setVisible(True)
 
     def limpa_fecoep(self):
         global frm_relatorio_fcp
@@ -539,6 +673,12 @@ class Window(QWidget):
         self.data_faturamento.setDate(QDate(ano,mes,dia))
         self.tabela_email.setModel(None)
         self.txt_resultado_email.setText("")
+    
+    def limpa_itens_excluidos(self):
+        global frm_itens_excluidos
+        self.tabela_ped.setModel(None)
+        self.txt_cod_pedido.setText("")
+        self.txt_cod_cliente.setText("")
 
 
 def executa():
